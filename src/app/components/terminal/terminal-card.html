@@ -75,14 +75,22 @@
 
   <!-- Chat History Log -->
   <!-- 'flex-1' ensures this area stretches to fill the new taller height -->
-  <div class="flex-1 space-y-5 mb-2 overflow-y-auto pr-2 scroll-smooth">
+  <div #scrollContainer class="flex-1 space-y-5 mb-2 overflow-y-auto pr-2 scroll-smooth">
     @for (msg of history(); track $index) {
       <div
         class="flex items-start gap-3"
         [class]="msg.sender === 'user' ? 'text-green-400' : 'text-gray-300'"
       >
         <span class="mt-0.5 select-none opacity-70">{{ msg.sender === 'user' ? '❯' : '◆' }}</span>
-        <span class="whitespace-pre-wrap leading-relaxed tracking-wide">{{ msg.text }}</span>
+        <div class="whitespace-pre-wrap leading-relaxed tracking-wide">
+          {{ msg.text }}
+          <!-- The Blinking Cursor -->
+          @if ($last && msg.sender === 'system' && isTyping()) {
+            <span
+              class="inline-block w-2.5 h-4 bg-gray-300 ml-0.5 align-middle animate-pulse"
+            ></span>
+          }
+        </div>
       </div>
     }
   </div>
@@ -97,6 +105,9 @@
       type="text"
       [(ngModel)]="currentInput"
       name="query"
+      [disabled]="isTyping()"
+      [class.opacity-50]="isTyping()"
+      autofocus
       placeholder="Type a command or ask a question..."
       class="bg-transparent flex-1 outline-none text-gray-100 placeholder-terminal-muted/60 text-sm py-1 transition-colors"
       autocomplete="off"

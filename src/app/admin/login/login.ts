@@ -1,6 +1,7 @@
 // src/app/admin/login/login.component.ts
 import { Component, inject } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -70,6 +71,7 @@ import { AuthService } from '../../core/auth/auth.service';
 export class AdminLogin {
   private fb = inject(NonNullableFormBuilder);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   hasError = false;
   loginForm = this.fb.group({
@@ -78,11 +80,23 @@ export class AdminLogin {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const success = this.authService.login(this.loginForm.getRawValue().password);
-      if (!success) {
-        this.hasError = true;
-        this.loginForm.reset();
-      }
+      const password = this.loginForm.getRawValue().password;
+
+      const credentials = {
+        email: 'admin@portfolio.com',
+        password: password,
+      };
+
+      this.authService.login(credentials).subscribe({
+        next: () => {
+          this.hasError = false;
+          this.router.navigate(['/admin/dashboard']);
+        },
+        error: () => {
+          this.hasError = true;
+          this.loginForm.reset();
+        },
+      });
     }
   }
 }

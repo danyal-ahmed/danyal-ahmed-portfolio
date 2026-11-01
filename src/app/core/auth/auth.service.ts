@@ -1,41 +1,43 @@
-import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+export interface LoginResponse {
+  access_token: string;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
-  private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  // Initialize the signal safely by checking the platform first
+  private apiUrl = 'http://localhost:3000/api/auth';
+
   isAuthenticated = signal<boolean>(this.hasToken());
 
-  constructor(private router: Router) {}
+  login(credentials: Record<string, string>): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response) => {
+        localStorage.setItem('admin_token', response.access_token);
+        this.isAuthenticated.set(true);
+      }),
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem('admin_token');
+    this.isAuthenticated.set(false);
+    this.router.navigate(['/login']);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('admin_token');
+  }
 
   private hasToken(): boolean {
-    // Only access localStorage if we are running in the user's browser
-    if (isPlatformBrowser(this.platformId)) {
-      return !!localStorage.getItem('admin_token');
-    }
-    return false; // Default to logged out during server-side rendering
-  }
-
-  login(password: string): boolean {
-    if (password === 'admin123') {
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem('admin_token', 'mock-jwt-token');
-      }
-      this.isAuthenticated.set(true);
-      this.router.navigate(['/admin/projects']);
-      return true;
-    }
-    return false;
-  }
-
-  logout() {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('admin_token');
-    }
-    this.isAuthenticated.set(false);
-    this.router.navigate(['/admin/login']);
+    return !!localStorage.getItem('admin_token');
   }
 }
