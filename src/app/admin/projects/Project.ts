@@ -9,16 +9,14 @@ import { ProjectsService } from './projects.service';
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   template: `
-    <div class="min-h-screen bg-slate-950 p-6 font-mono text-slate-300 relative z-10">
+    <div class="min-h-screen p-6 font-mono text-slate-300 relative z-10">
       <div class="max-w-3xl mx-auto">
         <div class="mb-6 flex items-center gap-2 text-green-400 text-sm">
           <span>❯</span> cd /var/www/portfolio/projects && nano
           {{ isEditMode() ? 'edit' : 'new' }}_project.json
         </div>
 
-        <div
-          class="bg-slate-900/50 border border-slate-800 rounded-xl p-8 backdrop-blur-md shadow-2xl"
-        >
+        <div class="border border-terminal-border rounded-xl p-8  shadow-2xl">
           <div class="flex items-center gap-3 mb-8 border-b border-slate-800 pb-4">
             <h1 class="text-xl font-bold tracking-tight text-white">
               {{ isEditMode() ? 'Edit Project' : 'Deploy New Project' }}
@@ -33,7 +31,7 @@ import { ProjectsService } from './projects.service';
               >
               <input
                 formControlName="title"
-                class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-3 py-2.5 outline-none text-sm text-slate-200 transition-colors"
+                class="w-full border border-terminal-border focus:border-green-500/50 rounded-lg px-3 py-2.5 outline-none text-sm text-slate-200 transition-colors"
                 placeholder="e.g., EFI-System"
               />
             </div>
@@ -95,7 +93,7 @@ import { ProjectsService } from './projects.service';
             <!-- Actions -->
             <div class="pt-6 flex items-center justify-between border-t border-slate-800">
               <a
-                routerLink="/admin/dashboard"
+                routerLink="/admin/projects"
                 class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
               >
                 [ESC] Cancel
@@ -178,7 +176,8 @@ export class Project implements OnInit {
         : this.projectsService.createProject(payload);
 
     request$.subscribe({
-      next: () => this.router.navigate(['/admin/dashboard']),
+      // Change this to match your admin routes
+      next: () => this.router.navigate(['/admin/projects']),
       error: (err) => {
         console.error('Save failed', err);
         this.isSubmitting.set(false);

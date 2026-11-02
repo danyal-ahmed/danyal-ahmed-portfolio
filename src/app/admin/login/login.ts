@@ -90,7 +90,7 @@ export class AdminLogin {
       this.authService.login(credentials).subscribe({
         next: () => {
           this.hasError = false;
-          this.router.navigate(['/admin/dashboard']);
+          this.router.navigate(['/admin/projects']);
         },
         error: () => {
           this.hasError = true;
