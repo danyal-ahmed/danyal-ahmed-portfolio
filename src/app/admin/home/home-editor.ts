@@ -1,107 +1,124 @@
-// src/app/admin/home/home-editor.component.ts
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-home-editor',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, NgClass],
   template: `
-    <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 backdrop-blur-sm">
-      <div class="mb-8 border-b border-slate-800 pb-4">
-        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+    <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 relative z-10 font-mono">
+      <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
           <span class="text-green-400">#</span> Edit Home Content
         </h2>
-        <p class="text-slate-400 text-sm mt-2">
-          Manage the hero section and bio displayed on the root page.
-        </p>
+        <div class="text-xs text-slate-500">~/portfolio/home_config.json</div>
       </div>
 
-      <form [formGroup]="homeForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Status Label -->
-        <div class="space-y-2">
-          <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
-            <span class="text-slate-500">></span> Status Label
-          </label>
-          <input
-            type="text"
-            formControlName="status"
-            class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-4 py-2.5 text-slate-200 outline-none transition-colors text-sm"
-            placeholder="e.g., AVAILABLE · open to roles & freelance"
-          />
+      @if (isLoading()) {
+        <div class="py-12 text-center text-slate-500 animate-pulse">
+          Reading configuration file...
         </div>
+      } @else {
+        <form [formGroup]="contentForm" (ngSubmit)="onSubmit()" class="space-y-6 max-w-3xl">
+          <div class="space-y-2 group">
+            <label class="text-xs font-bold tracking-wider text-slate-400">HEADLINE:</label>
+            <input
+              formControlName="headline"
+              class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-3 py-2.5 outline-none text-sm text-slate-200 transition-colors"
+            />
+          </div>
 
-        <!-- Hero Subtitle -->
-        <div class="space-y-2">
-          <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
-            <span class="text-slate-500">></span> Role Subtitle
-          </label>
-          <input
-            type="text"
-            formControlName="subtitle"
-            class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-4 py-2.5 text-slate-200 outline-none transition-colors text-sm"
-            placeholder="e.g., Lead Full-Stack Developer | AI Engineer"
-          />
-        </div>
+          <div class="space-y-2 group">
+            <label class="text-xs font-bold tracking-wider text-slate-400"
+              >SUBHEADLINE / ROLES:</label
+            >
+            <input
+              formControlName="subheadline"
+              class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-3 py-2.5 outline-none text-sm text-slate-200 transition-colors"
+            />
+          </div>
 
-        <!-- Bio Paragraph -->
-        <div class="space-y-2">
-          <label class="text-sm font-bold text-slate-300 flex items-center gap-2">
-            <span class="text-slate-500">></span> Main Bio Paragraph (HTML supported)
-          </label>
-          <textarea
-            rows="5"
-            formControlName="bio"
-            class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-4 py-3 text-slate-200 outline-none transition-colors text-sm font-mono leading-relaxed resize-none"
-            placeholder="I build and architect enterprise software..."
-          ></textarea>
-        </div>
+          <div class="space-y-2 group">
+            <label class="text-xs font-bold tracking-wider text-slate-400">MAIN DESCRIPTION:</label>
+            <textarea
+              formControlName="description"
+              rows="6"
+              class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-3 py-2.5 outline-none text-sm text-slate-200 transition-colors resize-none"
+            ></textarea>
+          </div>
 
-        <div class="pt-4 border-t border-slate-800 flex justify-end">
-          <button
-            type="submit"
-            [disabled]="homeForm.invalid || isSaving"
-            class="bg-green-500/10 text-green-400 border border-green-500/30 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-green-500/20 transition-colors disabled:opacity-50 flex items-center gap-2"
-          >
-            @if (isSaving) {
-              <span
-                class="w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin"
-              ></span>
-              SAVING...
-            } @else {
-              ./save_changes.sh
-            }
-          </button>
-        </div>
-      </form>
+          <div class="pt-4 flex items-center justify-between border-t border-slate-800">
+            <span
+              class="text-xs"
+              [ngClass]="saveStatus() === 'success' ? 'text-green-400' : 'text-slate-500'"
+            >
+              {{
+                saveStatus() === 'success'
+                  ? '✓ Changes written to disk'
+                  : 'Awaiting modifications...'
+              }}
+            </span>
+
+            <button
+              type="submit"
+              [disabled]="contentForm.invalid || isSubmitting()"
+              class="text-xs uppercase tracking-widest font-bold px-6 py-3 rounded-md bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              <span>❯</span> {{ isSubmitting() ? 'Executing...' : 'Save Configuration' }}
+            </button>
+          </div>
+        </form>
+      }
     </div>
   `,
 })
 export class HomeEditor implements OnInit {
   private fb = inject(NonNullableFormBuilder);
-  isSaving = false;
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:3000/api/home-content';
 
-  homeForm = this.fb.group({
-    status: ['AVAILABLE · open to roles & freelance', Validators.required],
-    subtitle: ['Lead Full-Stack Developer | AI Engineer | Karachi ↔ Remote', Validators.required],
-    bio: [
-      'I build and architect <span class="text-green-400 font-medium">enterprise software end-to-end</span>...',
-      Validators.required,
-    ],
+  isLoading = signal(true);
+  isSubmitting = signal(false);
+  saveStatus = signal<'idle' | 'success' | 'error'>('idle');
+
+  contentForm = this.fb.group({
+    headline: ['', Validators.required],
+    subheadline: ['', Validators.required],
+    description: ['', Validators.required],
   });
 
   ngOnInit() {
-    // Fetch initial data from AdminService here and patch the form
+    this.http.get<any>(this.apiUrl).subscribe({
+      next: (data) => {
+        this.contentForm.patchValue(data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load content', err);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   onSubmit() {
-    if (this.homeForm.valid) {
-      this.isSaving = true;
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Saved Home Data:', this.homeForm.getRawValue());
-        this.isSaving = false;
-      }, 1000);
-    }
+    if (this.contentForm.invalid) return;
+
+    this.isSubmitting.set(true);
+    this.saveStatus.set('idle');
+
+    this.http.put(this.apiUrl, this.contentForm.getRawValue()).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.saveStatus.set('success');
+        setTimeout(() => this.saveStatus.set('idle'), 3000);
+      },
+      error: (err) => {
+        console.error('Update failed', err);
+        this.isSubmitting.set(false);
+        this.saveStatus.set('error');
+      },
+    });
   }
 }
