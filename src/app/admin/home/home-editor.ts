@@ -41,6 +41,15 @@ import { NgClass } from '@angular/common';
           </div>
 
           <div class="space-y-2 group">
+            <label class="text-xs font-bold tracking-wider text-slate-400">AVAILABLE TO:</label>
+            <input
+              formControlName="availableTo"
+              placeholder="e.g. New Opportunities"
+              class="w-full bg-black/40 border border-slate-800 focus:border-green-500/50 rounded-lg px-3 py-2.5 outline-none text-sm text-slate-200 transition-colors"
+            />
+          </div>
+
+          <div class="space-y-2 group">
             <label class="text-xs font-bold tracking-wider text-slate-400">MAIN DESCRIPTION:</label>
             <textarea
               formControlName="description"
@@ -86,6 +95,7 @@ export class HomeEditor implements OnInit {
   contentForm = this.fb.group({
     headline: ['', Validators.required],
     subheadline: ['', Validators.required],
+    availableTo: ['', Validators.required],
     description: ['', Validators.required],
   });
 

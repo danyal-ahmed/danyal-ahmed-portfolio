@@ -7,24 +7,32 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <section
-      class="min-h-[85vh] flex flex-col justify-center max-w-5xl mx-auto p-6 sm:p-12 font-mono relative z-10"
-    >
+    <section class="flex flex-col justify-center max-w-5xl mx-auto p-2 font-mono relative z-10">
       @if (isLoading()) {
         <div class="text-slate-500 animate-pulse flex items-center gap-3">
           <span class="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
           Executing boot sequence...
         </div>
       } @else if (content()) {
-        <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div
+          class="inline-flex items-center gap-3 rounded-full border border-slate-800 bg-slate-900/40 px-4 py-1.5 text-bright mb-12 w-fit backdrop-blur-sm"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
+            ></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          AVAILABLE &middot; {{ content().headline }}
+        </div>
+        <div class="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <!-- Terminal Prompt -->
-          <div class="flex items-center gap-2 text-green-400 text-sm mb-6">
-            <span>❯</span> whoami
-          </div>
-
-          <!-- Dynamic Headline -->
-          <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-100 tracking-tight">
-            {{ content().headline }}
+          <h1 class="text-2xl sm:text-5xl md:text-5xl font-bold tracking-tight mb-6 leading-none">
+            <span class="text-slate-600 font-normal">$</span> hi, I'm<br />
+            <span class="text-green-400">{{ content().headline }}</span
+            ><span
+              class="inline-block w-2 h-[2rem] sm:w-2 sm:h-[3rem] md:h-[3rem] bg-green-500 animate-pulse align-baseline ml-1 translate-y-2 sm:translate-y-4"
+            ></span>
           </h1>
 
           <!-- Dynamic Subheadline -->
