@@ -30,7 +30,8 @@ export class ProjectsService {
   }
 
   getProject(id: string): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`);
+    // sortBy=techStack&order=asc
+    return this.http.get<Project>(`${this.apiUrl}/${id}&order=desc`);
   }
 
   createProject(project: CreateProjectDto): Observable<Project> {

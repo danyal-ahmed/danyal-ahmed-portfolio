@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
       @if (isLoading()) {
         <div class="text-slate-500 animate-pulse flex items-center gap-3">
           <span class="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
-          Executing boot sequence...
+          Executing DanBot boot sequence...
         </div>
       } @else if (content()) {
         <div
@@ -23,27 +23,29 @@ import { RouterLink } from '@angular/router';
             ></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
-          AVAILABLE &middot; {{ content().headline }}
+          <span [innerHTML]="content().availableTo"></span>
         </div>
         <div class="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <!-- Terminal Prompt -->
           <h1 class="text-2xl sm:text-5xl md:text-5xl font-bold tracking-tight mb-6 leading-none">
             <span class="text-slate-600 font-normal">$</span> hi, I'm<br />
-            <span class="text-green-400">{{ content().headline }}</span
+            <span class="text-green-400" [innerHTML]="content().headline"></span
             ><span
               class="inline-block w-2 h-[2rem] sm:w-2 sm:h-[3rem] md:h-[3rem] bg-green-500 animate-pulse align-baseline ml-1 translate-y-2 sm:translate-y-4"
             ></span>
           </h1>
 
           <!-- Dynamic Subheadline -->
-          <h2 class="text-xl sm:text-2xl md:text-3xl text-indigo-400 font-semibold mt-4">
-            {{ content().subheadline }}
-          </h2>
+          <h2
+            class="text-xl sm:text-2xl md:text-3xl text-indigo-400 font-semibold mt-4"
+            [innerHTML]="content().subheadline"
+          ></h2>
 
           <!-- Dynamic Description -->
-          <p class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl mt-8">
-            {{ content().description }}
-          </p>
+          <p
+            class="text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl mt-8"
+            [innerHTML]="content().description"
+          ></p>
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-4 pt-10 mt-10 border-t border-slate-800/80">
