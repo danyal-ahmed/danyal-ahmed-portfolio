@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment';
 
 export interface Project {
   _id: string;
@@ -23,7 +24,7 @@ export type UpdateProjectDto = Partial<CreateProjectDto>;
 export class ProjectsService {
   private http = inject(HttpClient);
   // Matches your NestJS global /api prefix
-  private apiUrl = 'http://localhost:3000/api/projects';
+  private apiUrl = `${environment.apiUrl}/api/projects`;
 
   getProjects(): Observable<Project[]> {
     return this.http.get<Project[]>(this.apiUrl);

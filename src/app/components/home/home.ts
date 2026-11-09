@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-home',
@@ -77,7 +78,8 @@ export class Home implements OnInit {
 
   ngOnInit() {
     // Fetch the public singleton record
-    this.http.get('http://localhost:3000/api/home-content').subscribe({
+    let apiUrl = `${environment.apiUrl}/api/home-content`;
+    this.http.get(apiUrl).subscribe({
       next: (data) => {
         this.content.set(data);
         this.isLoading.set(false);

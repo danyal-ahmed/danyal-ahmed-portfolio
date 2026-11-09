@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../../environment';
 
 export interface timeLine {
   year: string;
@@ -188,7 +189,8 @@ export class About implements OnInit {
 
   ngOnInit() {
     // Typed generic applied to the HTTP request
-    this.http.get<AboutContent>('http://localhost:3000/api/about-content').subscribe({
+    let apiUrl = `${environment.apiUrl}/api/about-content`;
+    this.http.get<AboutContent>(apiUrl).subscribe({
       next: (data) => {
         const timeline = (data.timeline || []).sort((a, b) => {
           const yearA = parseInt(a.year, 10);

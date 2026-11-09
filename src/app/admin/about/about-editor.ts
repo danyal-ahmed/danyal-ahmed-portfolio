@@ -7,6 +7,7 @@ import {
   FormGroup,
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-about-editor',
@@ -160,7 +161,7 @@ import { HttpClient } from '@angular/common/http';
 export class AboutEditor implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/about-content';
+  private apiUrl = `${environment.apiUrl}/api/about-content`;
 
   isSaving = false;
   saveSuccess = false;
