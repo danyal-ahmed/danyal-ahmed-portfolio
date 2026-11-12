@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment';
 
 export interface Message {
   _id: string;
@@ -14,7 +15,7 @@ export interface Message {
 @Injectable({ providedIn: 'root' })
 export class AdminMessagesService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/contact';
+   private apiUrl = `${environment.apiUrl}/api/contact`;
 
   getMessages(): Observable<Message[]> {
     // Automatically uses your auth.interceptor.ts
